@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 计数器 DApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            margin: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .wallet-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+        }
+
+        .counter-display {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .counter-value {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .counter-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-disconnect {
+            background: #c0392b;
+            color: white;
+            grid-column: span 2;
+            margin-top: 10px;
+        }
+
+        .btn-connect {
+            background: #27ae60;
+            color: white;
+            grid-column: span 2;
+            margin-bottom: 15px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .vault-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .vault-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .vault-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .vault-balance {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .vault-balance span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group.vertical {
+            flex-direction: column;
+        }
+
+        .input-group.vertical .btn {
+            width: 100%;
+        }
+
+        .network-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔢 Web3 计数器</h1>
+            <p>一个简单的去中心化应用演示</p>
+        </div>
+
+        <div class="wallet-section">
+            <button id="connectWallet" class="btn btn-connect">
+                🦊 连接 MetaMask 钱包
+            </button>
+            <button id="disconnectWallet" class="btn btn-disconnect hidden">
+                🔌 断开钱包
+            </button>
+            <div id="walletInfo" class="hidden">
+                <p><strong>钱包地址:</strong> <span id="walletAddress"></span></p>
+                <p class="network-info">网络: <span id="networkName">未知</span></p>
+            </div>
+        </div>
+
+        <div class="counter-display">
+            <div class="counter-value" id="counterValue">-</div>
+            <div class="counter-label">当前计数</div>
+        </div>
+
+        <div class="controls">
+            <button id="incrementBtn" class="btn btn-primary" disabled>
+                ➕ 增加
+            </button>
+            <button id="decrementBtn" class="btn btn-danger" disabled>
+                ➖ 减少
+            </button>
+            <button id="resetBtn" class="btn btn-warning" disabled>
+                🔄 重置 (仅所有者)
+            </button>
+            <button id="refreshBtn" class="btn btn-primary" disabled>
+                🔄 刷新计数
+            </button>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="setCountInput" placeholder="输入新的计数值" disabled>
+            <button id="setCountBtn" class="btn btn-primary" disabled>设置</button>
+        </div>
+
+        <div id="status" class="status hidden"></div>
+
+        <div class="network-info">
+            <p><strong>合约地址:</strong> <span id="contractAddress">请先部署合约</span></p>
+            <p><strong>金库地址:</strong> <span id="tokenVaultAddress">请先部署金库合约</span></p>
+            <p><strong>说明:</strong> 请确保你的MetaMask连接到正确的网络(如Sepolia测试网)</p>
+        </div>
+
+        <div class="vault-section">
+            <h2>🏦 金库操作</h2>
+            <p class="network-info">配置好 ERC20 代币地址后，即可充值、提现或在金库里转账。</p>
+            
+            <div class="vault-row">
+                <label for="tokenAddressInput"><strong>代币合约地址</strong></label>
+                <input type="text" id="tokenAddressInput" placeholder="0x开头的ERC20地址" disabled>
+            </div>
+
+            <div class="input-group vertical">
+                <input type="number" id="vaultAmountInput" placeholder="输入数量" disabled>
+                <div class="controls">
+                    <button id="depositBtn" class="btn btn-primary" disabled>📥 充值到金库</button>
+                    <button id="withdrawBtn" class="btn btn-warning" disabled>📤 从金库提现</button>
+                </div>
+            </div>
+
+            <div class="input-group vertical" style="margin-top: 15px;">
+                <input type="text" id="vaultRecipientInput" placeholder="接收者地址 (金库内转账)" disabled>
+                <input type="number" id="vaultTransferAmountInput" placeholder="输入转账数量" disabled>
+                <button id="transferBtn" class="btn btn-primary" disabled>🔁 金库内转账</button>
+            </div>
+
+            <div class="vault-balance" style="margin-top: 15px;">
+                <span>我的金库余额: <span id="vaultBalance">-</span></span>
+                <button id="refreshVaultBtn" class="btn btn-primary" disabled>🔄 刷新金库余额</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
